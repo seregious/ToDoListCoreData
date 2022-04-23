@@ -1,32 +1,19 @@
 //
-//  AppDelegate.swift
+//  DataManager.swift
 //  ToDoListCoreData
 //
 //  Created by Сергей Иванчихин on 22.04.2022.
 //
 
-import UIKit
+import Foundation
 import CoreData
 
-@main
-class AppDelegate: UIResponder, UIApplicationDelegate {
-
-    var window: UIWindow?
-
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        window = UIWindow(frame: UIScreen.main.bounds)
-        window?.makeKeyAndVisible()
-        window?.rootViewController = UINavigationController(rootViewController: TaskListViewController())
-        return true
-    }
-
-    func applicationWillTerminate(_ application: UIApplication) {
-        saveContext()
-    }
-
-
+class DataManager {
+    
+    static let shared = DataManager()
+    
     // MARK: - Core Data stack
-
+    
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "ToDoListCoreData")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
@@ -36,9 +23,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         })
         return container
     }()
-
+    
     // MARK: - Core Data Saving support
-
+    
     func saveContext () {
         let context = persistentContainer.viewContext
         if context.hasChanges {
@@ -50,6 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
     }
-
+    
+    private init() {}
+    
 }
-
