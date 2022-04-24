@@ -7,12 +7,16 @@
 
 import Foundation
 import UIKit
+import CoreData
+
+
 
 class TaskViewController: UIViewController {
     
-    var data: DataManager!
+    var context: NSManagedObjectContext!
     
-    // задаются тектовое поле и 2 кнопки
+    var delegate: TaskViewControllerDelegate?
+    
     private lazy var textField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "New Task"
@@ -28,21 +32,19 @@ class TaskViewController: UIViewController {
         setButton(text: "Cancel", textColor: .white, backgroundColor: .gray, action: #selector(cancel))
     }()
     
-    //инициализация экрана
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        setupSubviews(textField, saveButton, cancelButton) //инициализация контента на экране
+        setupSubviews(textField, saveButton, cancelButton)
         setConst()
     }
     
-    private func setupSubviews(_ subviews: UIView...) { //метод инициализации контента
+    private func setupSubviews(_ subviews: UIView...) {
         subviews.forEach { subview in
             view.addSubview(subview)
         }
     }
     
-    // установка расположения элементов относительно границ экрана и друг друга, для каждого элемента необходимо минимум 3 параметра
     private func setConst() {
         textField.translatesAutoresizingMaskIntoConstraints = false
         
@@ -63,7 +65,7 @@ class TaskViewController: UIViewController {
         ])
         
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
-
+        
         NSLayoutConstraint.activate([
             cancelButton.topAnchor.constraint(equalTo: saveButton.bottomAnchor, constant: 20),
             cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 40),
@@ -72,7 +74,22 @@ class TaskViewController: UIViewController {
     }
     
     @objc private func save() {
+        guard let entityDescription = NSEntityDescription.entity(forEntityName: "Task", in: context) else { return }
+        guard let task = NSManagedObject(entity: entityDescription, insertInto: context) as? Task else { return }
         
+        if textField.text?.count ?? 0 > 0 {
+            task.title = textField.text
+        }
+        
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch let error {
+                print(error)
+            }
+        }
+        
+        delegate?.reloadData()
         dismiss(animated: true)
     }
     
@@ -94,4 +111,5 @@ extension TaskViewController {
         return button
     }
 }
+
 
